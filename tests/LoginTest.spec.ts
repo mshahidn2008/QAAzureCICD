@@ -21,6 +21,8 @@ test.describe('SauceDemo login', () => {
 
     const error = page.locator('[data-test="error"]');
     await expect(error).toBeVisible();
-    await expect(error).toContainText('Username and password do not match');
+    await expect(error).toContainText(
+      'Username and password do not match any user in this service',
+    );
   });
 });
