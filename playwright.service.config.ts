@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test';
-import { createAzurePlaywrightConfig, ServiceOS } from '@azure/playwright';
+import { createAzurePlaywrightConfig, ServiceAuth, ServiceOS } from '@azure/playwright';
 import { DefaultAzureCredential } from '@azure/identity';
 import config from './playwright.config';
 
@@ -11,6 +11,8 @@ export default defineConfig(
     connectTimeout: 3 * 60 * 1000, // 3 minutes
     os: ServiceOS.LINUX,
     credential: new DefaultAzureCredential(),
+    serviceAuthType: ServiceAuth.ENTRA_ID,
+
   }),
   {
     /*
