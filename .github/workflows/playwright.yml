@@ -3,8 +3,6 @@ name: Playwright Tests
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   playwright-tests:
@@ -14,13 +12,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Find playwright config
+    - name: Debug file structure
       run: |
-        echo "=== Searching for playwright config ==="
+        echo "=== Searching for playwright config files ==="
         find . -name "playwright*.config.ts" -type f
-        echo "=== Repo root structure ==="
+        echo "=== Root contents ==="
         ls -la
-        ls -la tests/ 2>/dev/null || echo "tests/ directory not found"
     
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -28,15 +25,24 @@ jobs:
         node-version: '18'
     
     - name: Install dependencies
-      working-directory: tests/
-      run: npm ci
+      run: |
+        if [ -f "package.json" ]; then
+          npm ci
+        elif [ -f "tests/package.json" ]; then
+          cd tests && npm ci
+        else
+          echo "No package.json found"
+          exit 1
+        fi
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
     
     - name: Run Playwright tests
       env:
         PLAYWRIGHT_SERVICE_URL: ${{ secrets.PLAYWRIGHT_SERVICE_URL }}
         PLAYWRIGHT_SERVICE_ACCESS_TOKEN: ${{ secrets.PLAYWRIGHT_SERVICE_ACCESS_TOKEN }}
       run: |
-        cd tests/
         npx playwright test -c playwright.service.config.ts --workers=1
     
     - name: Upload Playwright report
@@ -46,4 +52,3 @@ jobs:
         name: playwright-tests-report
         path: playwright-report/
         retention-days: 30
-
